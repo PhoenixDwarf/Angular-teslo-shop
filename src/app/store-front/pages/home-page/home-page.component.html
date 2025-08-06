@@ -2,10 +2,11 @@
 <h2 class="text-xl mb-5">For all tastes</h2>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 mt-2 gap-3">
-  <product-card />
-  <product-card />
-  <product-card />
-  <product-card />
-  <product-card />
-  <product-card />
+  @for(product of productsResource.value()?.products; track product.id) {
+  <product-card [product]="product" />
+  }
+  <!--Empty-->
+  @empty {
+  <p>There are no products</p>
+  }
 </div>
