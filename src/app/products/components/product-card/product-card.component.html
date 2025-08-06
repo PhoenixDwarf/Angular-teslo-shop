@@ -3,14 +3,17 @@
     <img [src]="product().images | productImage" [alt]="product().title" />
   </figure>
   <div class="card-body">
-    <h2 class="card-title font-montserrat text-accent text-lg">
+    <h2
+      class="card-title font-montserrat text-accent text-lg hover:underline cursor-pointer"
+      [routerLink]="['/product', product().slug]"
+    >
       {{ product().title }}
     </h2>
     <p class="text-ellipsis line-clamp-3">
       {{ product().description }}
     </p>
     <div class="card-actions justify-end">
-      <a class="link link-accent" [routerLink]="['/product', 't-shirt']">
+      <a class="link link-accent" [routerLink]="['/product', product().slug]">
         View product
       </a>
     </div>
