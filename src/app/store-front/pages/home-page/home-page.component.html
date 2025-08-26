@@ -1,7 +1,12 @@
-<h1 class="text-xl font-bold font-montserrat">All products</h1>
+<h1 class="text-xl font-bold font-montserrat">
+  All products {{ currentPage() }}
+</h1>
 <h2 class="text-xl mb-5">For all tastes</h2>
 
-<app-pagination [pages]="productsResource.value()?.pages ?? 0" />
+<app-pagination
+  [pages]="productsResource.value()?.pages ?? 0"
+  [currentPage]="currentPage()"
+/>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 mt-2 gap-3">
   @for(product of productsResource.value()?.products; track product.id) {
