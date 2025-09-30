@@ -45,6 +45,23 @@ export class AuthService {
       );
   }
 
+  register(
+    fullName: string,
+    email: string,
+    password: string
+  ): Observable<boolean> {
+    return this.http
+      .post<AuthResponse>(`${baseUrl}/auth/register`, {
+        fullName: fullName,
+        email: email,
+        password: password,
+      })
+      .pipe(
+        map((resp) => this.handleAuthSuccess(resp)),
+        catchError((error) => this.handleAuthError(error))
+      );
+  }
+
   checkStatus(): Observable<boolean> {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -57,6 +74,7 @@ export class AuthService {
         // headers: {
         //   Authorization: `Bearer ${token}`,
         // },
+        // THIS IS NOW DONE WITH AN INTERCEPTOR
       })
       .pipe(
         map((resp) => this.handleAuthSuccess(resp)),

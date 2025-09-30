@@ -13,6 +13,7 @@ import {
 } from '@angular/common/http';
 import { loggingInterceptor } from '@shared/interceptors/loggin.interceptor';
 import { authInterceptor } from '@auth/interceptors/auth.interceptor';
+import { IMAGE_CONFIG } from '@angular/common';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,5 +27,12 @@ export const appConfig: ApplicationConfig = {
       ])
     ),
     provideRouter(routes),
+    {
+      provide: IMAGE_CONFIG,
+      useValue: {
+        disableImageSizeWarning: true,
+        disableImageLazyLoadWarning: true,
+      },
+    },
   ],
 };

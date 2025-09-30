@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-auth-layout',
   imports: [RouterOutlet],
   templateUrl: './auth-layout.component.html',
 })
-export class AuthLayoutComponent {}
+export class AuthLayoutComponent {
+  router = inject(Router);
+}
