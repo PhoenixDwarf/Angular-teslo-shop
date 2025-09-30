@@ -12,12 +12,19 @@ import {
   withInterceptors,
 } from '@angular/common/http';
 import { loggingInterceptor } from '@shared/interceptors/loggin.interceptor';
+import { authInterceptor } from '@auth/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideHttpClient(withFetch(), withInterceptors([loggingInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([
+        //loggingInterceptor,
+        authInterceptor,
+      ])
+    ),
     provideRouter(routes),
   ],
 };
