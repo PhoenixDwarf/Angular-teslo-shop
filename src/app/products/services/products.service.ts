@@ -40,7 +40,7 @@ export class ProductsService {
       })
       .pipe(
         tap((res) => console.log(res)),
-        tap((resp) => this.productsCache.set(key, resp))
+        tap((resp) => this.productsCache.set(key, resp)),
       );
   }
 
@@ -52,5 +52,15 @@ export class ProductsService {
     return this.http
       .get<Product>(`${baseUrl}/products/${idSLug}`)
       .pipe(tap((product) => this.productCache.set(idSLug, product)));
+  }
+
+  getProductById(id: string): Observable<Product> {
+    if (this.productCache.has(id)) {
+      return of(this.productCache.get(id)!);
+    }
+
+    return this.http
+      .get<Product>(`${baseUrl}/products/${id}`)
+      .pipe(tap((product) => this.productCache.set(id, product)));
   }
 }
