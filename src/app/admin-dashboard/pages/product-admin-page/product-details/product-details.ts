@@ -9,10 +9,11 @@ import {
 } from '@angular/forms';
 import { FormUtils } from '@utils/form-utils';
 import { Size } from '../../../../products/interfaces/product.interface';
+import { FormErrorLabel } from '@shared/components/form-error-label/form-error-label';
 
 @Component({
   selector: 'product-details',
-  imports: [ProductCarouselComponent, ReactiveFormsModule],
+  imports: [ProductCarouselComponent, ReactiveFormsModule, FormErrorLabel],
   templateUrl: './product-details.html',
 })
 export class ProductDetails {
@@ -58,6 +59,7 @@ export class ProductDetails {
   }
 
   onSubmit() {
-    console.log(this.productForm.value);
+    const isValid = this.productForm.valid;
+    console.log(this.productForm.value, { isValid });
   }
 }
