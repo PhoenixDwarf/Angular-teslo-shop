@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { FormUtils } from '@utils/form-utils';
+import { Size } from '../../../../products/interfaces/product.interface';
 
 @Component({
   selector: 'product-details',
@@ -45,6 +46,15 @@ export class ProductDetails {
   setFormValue(formLIke: Partial<Product>) {
     this.productForm.reset(formLIke as any);
     this.productForm.patchValue({ tags: formLIke.tags?.join(',') });
+  }
+
+  onSizeClicked(size: string) {
+    const sizes = this.productForm.value.sizes ?? [];
+
+    if (sizes.includes(size)) sizes.splice(sizes.indexOf(size), 1);
+    else sizes.push(size);
+
+    this.productForm.patchValue({ sizes });
   }
 
   onSubmit() {
