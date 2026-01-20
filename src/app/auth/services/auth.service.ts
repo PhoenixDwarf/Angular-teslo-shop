@@ -14,8 +14,8 @@ export class AuthService {
   private _authStatus = signal<AuthStatus>('checking');
   private _user = signal<User | null>(null);
   private _token = signal<string | null>(localStorage.getItem('token'));
-
   private http = inject(HttpClient);
+  private checkStatusMinutesCache: number = 0;
 
   checkStatusResource = rxResource({
     stream: () => this.checkStatus(),
@@ -29,6 +29,7 @@ export class AuthService {
 
   user = computed(() => this._user());
   token = computed(this._token);
+  isAdmin = computed(() => this._user()?.roles.includes('admin') ?? false);
 
   // The use of computed signals here serves as getters since they cannot be modified.
   // This reduces boilerplate code and looks cleaner tbh
@@ -41,14 +42,14 @@ export class AuthService {
       })
       .pipe(
         map((resp) => this.handleAuthSuccess(resp)),
-        catchError((error) => this.handleAuthError(error))
+        catchError((error) => this.handleAuthError(error)),
       );
   }
 
   register(
     fullName: string,
     email: string,
-    password: string
+    password: string,
   ): Observable<boolean> {
     return this.http
       .post<AuthResponse>(`${baseUrl}/auth/register`, {
@@ -58,7 +59,7 @@ export class AuthService {
       })
       .pipe(
         map((resp) => this.handleAuthSuccess(resp)),
-        catchError((error) => this.handleAuthError(error))
+        catchError((error) => this.handleAuthError(error)),
       );
   }
 
@@ -67,6 +68,13 @@ export class AuthService {
     if (!token) {
       this.logout();
       return of(false);
+    }
+
+    const minutesDate = Date.now() / (1000 * 60);
+    const differenceInMinutes = minutesDate - this.checkStatusMinutesCache;
+
+    if (differenceInMinutes <= 15 && this._user()) {
+      return of(true);
     }
 
     return this.http
@@ -78,7 +86,7 @@ export class AuthService {
       })
       .pipe(
         map((resp) => this.handleAuthSuccess(resp)),
-        catchError((error) => this.handleAuthError(error))
+        catchError((error) => this.handleAuthError(error)),
       );
   }
 
@@ -94,6 +102,7 @@ export class AuthService {
     this._token.set(token);
     this._authStatus.set('authenticated');
     localStorage.setItem('token', token);
+    this.checkStatusMinutesCache = Date.now() / (1000 * 60);
     return true;
   }
 
