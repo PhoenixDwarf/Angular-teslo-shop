@@ -1,19 +1,20 @@
 import { Routes } from '@angular/router';
-import { AdminDashboardLayoutComponent } from './layouts/admin-dashboard-layout/admin-dashboard-layout';
-import { ProductAdminPageComponent } from './pages/product-admin-page/product-admin-page';
+import { AdminDashboardLayout } from './layouts/admin-dashboard-layout/admin-dashboard-layout';
+import { ProductAdminPage } from './pages/product-admin-page/product-admin-page';
+import { ProductsAdminPage } from './pages/products-admin-page/products-admin-page';
 
 export const adminDashboardRoutes: Routes = [
   {
     path: '',
-    component: AdminDashboardLayoutComponent,
+    component: AdminDashboardLayout,
     children: [
       {
         path: 'products',
-        component: ProductAdminPageComponent,
+        component: ProductsAdminPage,
       },
       {
         path: 'product/:id',
-        component: ProductAdminPageComponent,
+        component: ProductAdminPage,
       },
       {
         path: '**',
