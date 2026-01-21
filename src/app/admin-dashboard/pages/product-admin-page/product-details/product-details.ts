@@ -10,6 +10,7 @@ import {
 import { FormUtils } from '@utils/form-utils';
 import { Size } from '../../../../products/interfaces/product.interface';
 import { FormErrorLabel } from '@shared/components/form-error-label/form-error-label';
+import { ProductsService } from '@products/services/products.service';
 
 @Component({
   selector: 'product-details',
@@ -19,6 +20,7 @@ import { FormErrorLabel } from '@shared/components/form-error-label/form-error-l
 export class ProductDetails {
   fb = inject(FormBuilder);
   product = input.required<Product>();
+  productService = inject(ProductsService);
 
   productForm = this.fb.group({
     title: ['', Validators.required],
@@ -44,9 +46,9 @@ export class ProductDetails {
     this.setFormValue(this.product());
   }
 
-  setFormValue(formLIke: Partial<Product>) {
-    this.productForm.reset(formLIke as any);
-    this.productForm.patchValue({ tags: formLIke.tags?.join(',') });
+  setFormValue(formLike: Partial<Product>) {
+    this.productForm.reset(formLike as any);
+    this.productForm.patchValue({ tags: formLike.tags?.join(',') });
   }
 
   onSizeClicked(size: string) {
@@ -60,6 +62,23 @@ export class ProductDetails {
 
   onSubmit() {
     const isValid = this.productForm.valid;
-    console.log(this.productForm.value, { isValid });
+    this.productForm.markAllAsTouched();
+
+    if (!isValid) return;
+
+    const formValue = this.productForm.value;
+
+    const productLike: Partial<Product> = {
+      ...(formValue as any),
+      tags:
+        formValue.tags
+          ?.toLowerCase()
+          .split(',')
+          .map((tag) => tag.trim()) ?? [],
+    };
+
+    console.log(productLike);
+
+    this.productService.updateProduct(productLike);
   }
 }

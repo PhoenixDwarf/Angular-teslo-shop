@@ -78,7 +78,7 @@
       type="text"
       placeholder="Tags"
       class="input input-bordered w-full"
-      formArrayName="tags"
+      formControlName="tags"
       [class.border-red-500]="
         productForm.get('tags')?.errors && productForm.get('tags')?.touched
       "
