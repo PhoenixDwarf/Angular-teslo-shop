@@ -11,6 +11,7 @@ import { FormUtils } from '@utils/form-utils';
 import { Size } from '../../../../products/interfaces/product.interface';
 import { FormErrorLabel } from '@shared/components/form-error-label/form-error-label';
 import { ProductsService } from '@products/services/products.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'product-details',
@@ -18,8 +19,11 @@ import { ProductsService } from '@products/services/products.service';
   templateUrl: './product-details.html',
 })
 export class ProductDetails {
-  fb = inject(FormBuilder);
   product = input.required<Product>();
+
+  router = inject(Router);
+  fb = inject(FormBuilder);
+
   productService = inject(ProductsService);
 
   productForm = this.fb.group({
@@ -79,10 +83,19 @@ export class ProductDetails {
 
     console.log(productLike);
 
-    this.productService
-      .updateProduct(this.product().id, productLike)
-      .subscribe({
-        next: () => console.log('Product was updated'),
+    if (this.product().id === 'new') {
+      this.productService.createProduct(productLike).subscribe({
+        next: (product) => {
+          this.router.navigate(['/admin/products', product.id]);
+          console.log('Product was created');
+        },
       });
+    } else {
+      this.productService
+        .updateProduct(this.product().id, productLike)
+        .subscribe({
+          next: () => console.log('Product was updated'),
+        });
+    }
   }
 }

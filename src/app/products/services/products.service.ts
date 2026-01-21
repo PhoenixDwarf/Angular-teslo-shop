@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { User } from '@auth/interfaces/user.interface';
 import {
+  Gender,
   Product,
   ProductsResponse,
 } from '@products/interfaces/product.interface';
@@ -14,6 +16,20 @@ interface Options {
   offset?: number;
   gender?: string;
 }
+
+const emptyProduct: Product = {
+  id: 'new',
+  title: '',
+  price: 0,
+  description: '',
+  slug: '',
+  stock: 0,
+  sizes: [],
+  gender: Gender.Men,
+  tags: [],
+  images: [],
+  user: {} as User,
+};
 
 @Injectable({ providedIn: 'root' })
 export class ProductsService {
@@ -55,13 +71,19 @@ export class ProductsService {
   }
 
   getProductById(id: string): Observable<Product> {
-    if (this.productCache.has(id)) {
-      return of(this.productCache.get(id)!);
-    }
+    if (id === 'new') return of(emptyProduct);
+
+    if (this.productCache.has(id)) return of(this.productCache.get(id)!);
 
     return this.http
       .get<Product>(`${baseUrl}/products/${id}`)
       .pipe(tap((product) => this.productCache.set(id, product)));
+  }
+
+  createProduct(productLike: Partial<Product>): Observable<Product> {
+    return this.http
+      .post<Product>(`${baseUrl}/products`, productLike)
+      .pipe(tap({ next: (product) => this.updateProductCache(product) }));
   }
 
   updateProduct(
@@ -70,13 +92,23 @@ export class ProductsService {
   ): Observable<Product> {
     return this.http
       .patch<Product>(`${baseUrl}/products/${id}`, productLike)
-      .pipe(tap({ next: (res) => this.updateProductCache(res) }));
+      .pipe(
+        tap({
+          next: (product) => {
+            this.updateProductCache(product);
+            this.updateProductsCache(product);
+          },
+        }),
+      );
   }
 
   updateProductCache(product: Product) {
     const productId = product.id;
     this.productCache.set(productId, product);
+  }
 
+  updateProductsCache(product: Product) {
+    const productId = product.id;
     this.productsCache.forEach((productsResponse) => {
       productsResponse.products = productsResponse.products.map(
         (currentProduct) => {
