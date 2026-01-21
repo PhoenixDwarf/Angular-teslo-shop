@@ -79,6 +79,10 @@ export class ProductDetails {
 
     console.log(productLike);
 
-    this.productService.updateProduct(productLike);
+    this.productService
+      .updateProduct(this.product().id, productLike)
+      .subscribe({
+        next: () => console.log('Product was updated'),
+      });
   }
 }
