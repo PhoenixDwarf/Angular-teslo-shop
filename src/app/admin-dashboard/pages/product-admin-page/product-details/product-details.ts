@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { Product } from '@products/interfaces/product.interface';
 import { ProductCarouselComponent } from '@products/components/product-carousel/product-carousel.component';
 import {
@@ -12,6 +12,7 @@ import { Size } from '../../../../products/interfaces/product.interface';
 import { FormErrorLabel } from '@shared/components/form-error-label/form-error-label';
 import { ProductsService } from '@products/services/products.service';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'product-details',
@@ -25,6 +26,8 @@ export class ProductDetails {
   fb = inject(FormBuilder);
 
   productService = inject(ProductsService);
+
+  wasSaved = signal(false);
 
   productForm = this.fb.group({
     title: ['', Validators.required],
@@ -64,7 +67,7 @@ export class ProductDetails {
     this.productForm.patchValue({ sizes });
   }
 
-  onSubmit() {
+  async onSubmit() {
     const isValid = this.productForm.valid;
     this.productForm.markAllAsTouched();
 
@@ -84,18 +87,19 @@ export class ProductDetails {
     console.log(productLike);
 
     if (this.product().id === 'new') {
-      this.productService.createProduct(productLike).subscribe({
-        next: (product) => {
-          this.router.navigate(['/admin/products', product.id]);
-          console.log('Product was created');
-        },
-      });
+      const product = await firstValueFrom(
+        this.productService.createProduct(productLike),
+      );
+      console.log('Product was created');
+      this.router.navigate(['/admin/products', product.id]);
     } else {
-      this.productService
-        .updateProduct(this.product().id, productLike)
-        .subscribe({
-          next: () => console.log('Product was updated'),
-        });
+      await firstValueFrom(
+        this.productService.updateProduct(this.product().id, productLike),
+      );
+      console.log('Product was updated');
     }
+
+    this.wasSaved.set(true);
+    setTimeout(() => this.wasSaved.set(false), 3000);
   }
 }
