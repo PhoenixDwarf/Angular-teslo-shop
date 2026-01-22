@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --prod --base-href teslo-shop",
+    "build": "ng build --base-href teslo-shop",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "set-envs": "node ./scripts/set-envs.js"
