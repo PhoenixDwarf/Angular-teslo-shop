@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Product } from '@products/interfaces/product.interface';
 import { ProductCarouselComponent } from '@products/components/product-carousel/product-carousel.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -23,6 +23,10 @@ export class ProductDetails {
 
   wasSaved = signal(false);
   temporalImagesBlobURL = signal<string[]>([]);
+  currentAndTemporalImages = computed(() => [
+    ...this.product().images,
+    ...this.temporalImagesBlobURL(),
+  ]);
   imageFileList = signal<FileList | null>(null);
 
   productForm = this.fb.group({
