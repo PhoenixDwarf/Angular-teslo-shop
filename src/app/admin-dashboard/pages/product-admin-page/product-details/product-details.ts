@@ -1,14 +1,8 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { Product } from '@products/interfaces/product.interface';
 import { ProductCarouselComponent } from '@products/components/product-carousel/product-carousel.component';
-import {
-  FormBuilder,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormUtils } from '@utils/form-utils';
-import { Size } from '../../../../products/interfaces/product.interface';
 import { FormErrorLabel } from '@shared/components/form-error-label/form-error-label';
 import { ProductsService } from '@products/services/products.service';
 import { Router } from '@angular/router';
@@ -28,6 +22,8 @@ export class ProductDetails {
   productService = inject(ProductsService);
 
   wasSaved = signal(false);
+  temporalImagesBlobURL = signal<string[]>([]);
+  imageFileList = signal<FileList | null>(null);
 
   productForm = this.fb.group({
     title: ['', Validators.required],
@@ -101,5 +97,17 @@ export class ProductDetails {
 
     this.wasSaved.set(true);
     setTimeout(() => this.wasSaved.set(false), 3000);
+  }
+
+  onFilesChange(event: Event) {
+    const fileList = (event.target as HTMLInputElement).files;
+    this.temporalImagesBlobURL.set([]);
+    this.imageFileList.set(fileList);
+
+    const imageUrls = Array.from(fileList ?? []).map((file) =>
+      URL.createObjectURL(file),
+    );
+
+    this.temporalImagesBlobURL.set(imageUrls);
   }
 }
