@@ -1,4 +1,4 @@
 [[redirects]]
   from = "/*"
   status = 200
-  to = "/index.html"
+  to = "efna-angular-teslo-shop/teslo-shop/browser/index.html"
