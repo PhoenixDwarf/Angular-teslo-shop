@@ -6,7 +6,7 @@ import {
   Product,
   ProductsResponse,
 } from '@products/interfaces/product.interface';
-import { forkJoin, map, Observable, of, tap } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 const baseUrl = environment.baseUrl;
@@ -80,26 +80,50 @@ export class ProductsService {
       .pipe(tap((product) => this.productCache.set(id, product)));
   }
 
-  createProduct(productLike: Partial<Product>): Observable<Product> {
-    return this.http
-      .post<Product>(`${baseUrl}/products`, productLike)
-      .pipe(tap({ next: (product) => this.updateProductCache(product) }));
+  createProduct(
+    productLike: Partial<Product>,
+    imageFileList?: FileList,
+  ): Observable<Product> {
+    const currentImagNames = productLike.images ?? [];
+
+    return this.uploadImages(imageFileList).pipe(
+      map((newImgNames) => ({
+        ...productLike,
+        images: [...currentImagNames, ...newImgNames],
+      })),
+      switchMap((updatedProduct) => {
+        return this.http
+          .post<Product>(`${baseUrl}/products`, updatedProduct)
+          .pipe(tap({ next: (product) => this.updateProductCache(product) }));
+      }),
+    );
   }
 
   updateProduct(
     id: string,
     productLike: Partial<Product>,
+    imageFileList?: FileList,
   ): Observable<Product> {
-    return this.http
-      .patch<Product>(`${baseUrl}/products/${id}`, productLike)
-      .pipe(
-        tap({
-          next: (product) => {
-            this.updateProductCache(product);
-            this.updateProductsCache(product);
-          },
-        }),
-      );
+    const currentImagNames = productLike.images ?? [];
+
+    return this.uploadImages(imageFileList).pipe(
+      map((newImgNames) => ({
+        ...productLike,
+        images: [...currentImagNames, ...newImgNames],
+      })),
+      switchMap((updatedProduct) => {
+        return this.http
+          .patch<Product>(`${baseUrl}/products/${id}`, updatedProduct)
+          .pipe(
+            tap({
+              next: (product) => {
+                this.updateProductCache(product);
+                this.updateProductsCache(product);
+              },
+            }),
+          );
+      }),
+    );
   }
 
   updateProductCache(product: Product) {
@@ -133,7 +157,7 @@ export class ProductsService {
     formData.append('file', imageFile);
 
     return this.http
-      .post<{ fileName: string }>(`${baseUrl}/files/products`, formData)
+      .post<{ fileName: string }>(`${baseUrl}/files/product`, formData)
       .pipe(map((res) => res.fileName));
   }
 }

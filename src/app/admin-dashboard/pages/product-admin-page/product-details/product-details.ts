@@ -27,7 +27,7 @@ export class ProductDetails {
     ...this.product().images,
     ...this.temporalImagesBlobURL(),
   ]);
-  imageFileList = signal<FileList | null>(null);
+  imageFileList = signal<FileList | undefined>(undefined);
 
   productForm = this.fb.group({
     title: ['', Validators.required],
@@ -88,13 +88,17 @@ export class ProductDetails {
 
     if (this.product().id === 'new') {
       const product = await firstValueFrom(
-        this.productService.createProduct(productLike),
+        this.productService.createProduct(productLike, this.imageFileList()),
       );
       console.log('Product was created');
       this.router.navigate(['/admin/products', product.id]);
     } else {
       await firstValueFrom(
-        this.productService.updateProduct(this.product().id, productLike),
+        this.productService.updateProduct(
+          this.product().id,
+          productLike,
+          this.imageFileList(),
+        ),
       );
       console.log('Product was updated');
     }
@@ -106,7 +110,7 @@ export class ProductDetails {
   onFilesChange(event: Event) {
     const fileList = (event.target as HTMLInputElement).files;
     this.temporalImagesBlobURL.set([]);
-    this.imageFileList.set(fileList);
+    this.imageFileList.set(fileList ?? undefined);
 
     const imageUrls = Array.from(fileList ?? []).map((file) =>
       URL.createObjectURL(file),
